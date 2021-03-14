@@ -1,0 +1,238 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Mechanics &#8212; setuptools_dso  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Working with packages using setuptools_dso" href="usage.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="mechanics">
+<h1>Mechanics<a class="headerlink" href="#mechanics" title="Permalink to this headline">¶</a></h1>
+<p>Libraries build with setuptools-dso will typically be linked, directly or indirectly, to python extension modules.
+Such libraries should be loaded implicitly when the extension module is imported by the python runtime.
+For this to work the OS runtime loader must be able to find these libraries.
+This is complicated by OS differences, and a desire to support virtualenv and similar.</p>
+<p>Supporting virtualenv prevents the use of absolute build time paths.</p>
+<p>The resolutions to this complication differ for each OS depending on the
+capabilities of the executable format used.</p>
+<div class="section" id="elf-linux-nix-bsd">
+<h2>ELF (Linux, *NIX, *BSD)<a class="headerlink" href="#elf-linux-nix-bsd" title="Permalink to this headline">¶</a></h2>
+<p>For ELF (Executable and Linking Format) targets the RPATH mechanism is used with the magic $ORIGIN/ prefix.</p>
+<p>Take as an example the following installed module tree:</p>
+<ul class="simple">
+<li>modulea/</li>
+</ul>
+<blockquote>
+<div><ul class="simple">
+<li>__init__.py</li>
+<li>_ext.so</li>
+<li>lib/</li>
+</ul>
+<blockquote>
+<div><ul class="simple">
+<li>libsup.so</li>
+<li>libsup.so.0</li>
+</ul>
+</div></blockquote>
+</div></blockquote>
+<p>The supporting library is then linked with a library name of <code class="docutils literal notranslate"><span class="pre">libsup.so.0</span></code>
+(eg. <code class="docutils literal notranslate"><span class="pre">gcc</span> <span class="pre">-o</span> <span class="pre">libsup.so.0</span> <span class="pre">-shared</span> <span class="pre">-Wl,-soname,libsup.so.0</span> <span class="pre">...</span></code>)</p>
+<p>When linking a dependent library or extension module <code class="docutils literal notranslate"><span class="pre">-Wl,-rpath,'$ORIGIN/lib'</span></code>
+is given since the relative path from <code class="docutils literal notranslate"><span class="pre">_ext.so</span></code> to <code class="docutils literal notranslate"><span class="pre">libsup.so.0</span></code> is <code class="docutils literal notranslate"><span class="pre">./lib</span></code>.</p>
+<p>Note that on Linux runtime linking is really a function of the libc (eg. glibc).</p>
+</div>
+<div class="section" id="mach-o-osx">
+<h2>Mach-O (OSX)<a class="headerlink" href="#mach-o-osx" title="Permalink to this headline">¶</a></h2>
+<p>Historically Mach-O did not support anything like RPATH.
+However, it now does (cf. ‘man dyld’)</p>
+<p>The equivalence with GCC+ELF is for <code class="docutils literal notranslate"><span class="pre">-Wl,-soname,libsup.so.0</span></code> to become <code class="docutils literal notranslate"><span class="pre">-install\_name</span> <span class="pre">&#64;rpath/libsup.0.dylib</span></code>.
+Then <code class="docutils literal notranslate"><span class="pre">-Wl,-rpath,'$ORIGIN/lib'</span></code> becomes <code class="docutils literal notranslate"><span class="pre">-Wl,-rpath,&#64;loader_path/lib</span></code>.</p>
+</div>
+<div class="section" id="pe-windows">
+<h2>PE (Windows)<a class="headerlink" href="#pe-windows" title="Permalink to this headline">¶</a></h2>
+<p>There is no equivalent for RPATH.
+It is necessary to adjust the loader search path to include the directory
+containing the support library dll explicitly from python code prior to loading the extension.
+(eg. from an <code class="docutils literal notranslate"><span class="pre">__init__.py</span></code>)</p>
+<p>With earlier versions of Windows it is sufficient to adjust <code class="docutils literal notranslate"><span class="pre">%PATH%</span></code>.
+Recent versions require use of the <code class="docutils literal notranslate"><span class="pre">AddDllDirectory()</span></code> API call.
+Python wraps this as <code class="docutils literal notranslate"><span class="pre">os.add_dll_directory()</span></code>.</p>
+</div>
+</div>
+<div class="section" id="changelog">
+<h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this headline">¶</a></h1>
+<ul>
+<li><p class="first">2.0 (UNRELEASED)</p>
+<blockquote>
+<div><ul class="simple">
+<li>Generate info module for each DSO (Kaleb Barrett)</li>
+<li>Runtime access to info modules.</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first">1.7 (May 2020)</p>
+<blockquote>
+<div><ul class="simple">
+<li>Fix support for develop install (pip install -e).  (Kirill Smelkov)</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first">1.6 (May 2020)</p>
+<blockquote>
+<div><ul class="simple">
+<li>Use &#64;rpath as install_name prefix on MacOS (Mehul Tikekar)</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first">1.5 (Jan. 2020)</p>
+<blockquote>
+<div><ul class="simple">
+<li>Correct parallel compile on Mac</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first">1.4 (Jan. 2020)</p>
+<blockquote>
+<div><ul class="simple">
+<li>Take package_dir into account (Kirill Smelkov)</li>
+<li>Parallel compile of DSO source when supported (py &gt;= 3.4 and not windows)</li>
+<li>Fake <a class="reference internal" href="usage.html#setuptools_dso.cythonize" title="setuptools_dso.cythonize"><code class="xref py py-func docutils literal notranslate"><span class="pre">cythonize()</span></code></a> wrapper when Cython not installed</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first">1.3 (Nov. 2019)</p>
+<blockquote>
+<div><ul class="simple">
+<li>Handle DSO in root (not in a package)</li>
+<li>setup() wrapper correct ‘cmdclass’ handling (Kirill Smelkov)</li>
+<li>Add <a class="reference internal" href="usage.html#setuptools_dso.cythonize" title="setuptools_dso.cythonize"><code class="xref py py-func docutils literal notranslate"><span class="pre">setuptools_dso.cythonize()</span></code></a> wrapper</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first">1.2 (Aug. 2019)</p>
+<blockquote>
+<div><ul class="simple">
+<li>Add LICENSE and COPYRIGHT to MANIFEST</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first">1.1 (Aug. 2019)</p>
+<blockquote>
+<div><ul class="simple">
+<li>Fix inplace build (Kirill Smelkov)</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first">1.0 (Oct. 2018)</p>
+<blockquote>
+<div><ul class="simple">
+<li>Initial Release</li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">setuptools_dso</a></h1>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=mdavidsaver&repo=setuptools_dso&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Working with packages using setuptools_dso</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Mechanics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#elf-linux-nix-bsd">ELF (Linux, *NIX, *BSD)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mach-o-osx">Mach-O (OSX)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pe-windows">PE (Windows)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#changelog">Changelog</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="usage.html" title="previous chapter">Working with packages using setuptools_dso</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, Michael Davidsaver.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      
+      |
+      <a href="_sources/details.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/mdavidsaver/setuptools_dso" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>

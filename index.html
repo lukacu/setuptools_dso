@@ -1,0 +1,139 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>setuptools extension for building non-Python Dynamic Shared Objects &#8212; setuptools_dso  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Working with packages using setuptools_dso" href="usage.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-setuptools_dso">
+<span id="setuptools-extension-for-building-non-python-dynamic-shared-objects"></span><h1>setuptools extension for building non-Python Dynamic Shared Objects<a class="headerlink" href="#module-setuptools_dso" title="Permalink to this headline">¶</a></h1>
+<p>Building non-python shared libraries (eg. <cite>libY.so</cite>, <cite>libY.dylib</cite>, or <cite>Y.dll</cite>) for inclusion in a Python Wheel.</p>
+<p>This <a class="reference external" href="https://pypi.org/project/setuptools/">setuptools</a> extension
+provides at alternative to bundling externally built libraries in Python Wheel packages.
+This replaces an external build system (eg. Makefile),
+allowing non-python libraries to be built from source within a python ecosystem.</p>
+<ul class="simple">
+<li><a class="reference external" href="https://github.com/mdavidsaver/setuptools_dso/issues">Issue tracker</a></li>
+<li>On <a class="reference external" href="https://pypi.org/project/setuptools-dso/">PYPI</a></li>
+<li><a class="reference external" href="https://github.com/mdavidsaver/setuptools_dso">VCS repository</a></li>
+<li>Canonical <a class="reference external" href="https://mdavidsaver.github.io/setuptools_dso">documentation</a></li>
+<li><a class="reference external" href="https://github.com/mdavidsaver/setuptools_dso/tree/master/example">Example usage</a></li>
+<li>CI status <a class="reference external" href="https://github.com/mdavidsaver/setuptools_dso/actions"><img alt="github actions status badge" src="https://github.com/mdavidsaver/setuptools_dso/workflows/setuptools-dso/badge.svg" /></a></li>
+</ul>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Working with packages using setuptools_dso</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="usage.html#usage">Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage.html#runtime">Runtime</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="details.html">Mechanics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="details.html#elf-linux-nix-bsd">ELF (Linux, *NIX, *BSD)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="details.html#mach-o-osx">Mach-O (OSX)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="details.html#pe-windows">PE (Windows)</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="details.html#changelog">Changelog</a></li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="#">setuptools_dso</a></h1>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=mdavidsaver&repo=setuptools_dso&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Working with packages using setuptools_dso</a></li>
+<li class="toctree-l1"><a class="reference internal" href="details.html">Mechanics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="details.html#changelog">Changelog</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="#">Documentation overview</a><ul>
+      <li>Next: <a href="usage.html" title="next chapter">Working with packages using setuptools_dso</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, Michael Davidsaver.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.8</a>
+      
+      |
+      <a href="_sources/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+    <a href="https://github.com/mdavidsaver/setuptools_dso" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    
+
+    
+  </body>
+</html>
